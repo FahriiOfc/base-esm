@@ -53,7 +53,7 @@ async function reloadCommands(commandLoader) {
 // ============================================================
 
 async function reloadLibFiles() {
-    // Hanya file lib/ yang benar-benar ada di project base Anda
+    // Hanya file lib/ yang benar-benar ada di project
     const libFiles = [
         'commandLoader.js',
         'commandManager.js',
