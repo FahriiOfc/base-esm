@@ -10,7 +10,7 @@
 Project ini **100% original** dan dikembangkan oleh:
 
 - **Creator / Owner**: FarrDev (FarrMd)
-- **WhatsApp**: [+62 858-9302-8915](https://wa.me/6285893028915)
+- **WhatsApp**: [Disini](https://wa.me/62882002653075)
 - **Base Version**: v2.0.0
 
 **Hak Cipta & Lisensi:**
@@ -48,3 +48,90 @@ FarrMdV2/
 ├── handler.js            # Message dispatcher
 ├── index.js              # Entry point (koneksi Baileys)
 └── package.json          # Dependencies
+```
+
+---
+
+🚀 Tutorial Install: VPS (Ubuntu/Debian)
+
+Panduan ini cocok untuk VPS yang belum memiliki Node.js atau Git sama sekali.
+
+```bash
+apt update && apt upgrade -y
+apt install -y curl wget git zip unzip build-essential python3
+curl -fsSL https://deb.nodesource.com/setup_22.x | -E bash -
+apt install -y nodejs
+```
+Verifikasi instalasi nodejs:
+```
+node -v 
+npm -v
+```
+Clone repository ini, masuk ke foldernya, lalu install dependencies:
+```bash
+git clone https://github.com/FahriiOfc/base-esm.git
+cd base-esm
+npm install
+npm start
+```
+Edit file config.js untuk menyesuaikan nama bot, nomor owner, dan prefix.
+[klick disini](https://github.com/FahriiOfc/base-esm/config.js)
+
+Saat pertama kali berjalan, bot akan meminta nomor WhatsApp. Masukkan nomor (contoh: 628xxx) lalu masukkan 8-digit Pairing Code yang muncul ke WhatsApp Anda (Perangkat Tertaut).
+
+---
+
+📱 Tutorial Install: Termux (Android)
+
+1. Update & Install Dependencies
+
+Buka Termux, lalu jalankan:
+
+```bash
+pkg update && pkg upgrade -y
+pkg install -y nodejs-lts git ffmpeg libwebp python make clang pkg-config
+git clone https://github.com/FahriiOfc/base-esm.git
+cd base-esm
+npm install
+npm start
+```
+---
+
+⚙️ Cara Menjalankan Bot 24/7 (Production)
+
+Jika Anda menggunakan VPS, sangat disarankan menggunakan PM2 agar bot otomatis restart jika crash atau VPS reboot.
+
+1. Install PM2 (Global)
+
+```bash
+sudo npm install -g pm2
+```
+
+2. Jalankan Bot dengan PM2
+
+```bash
+pm2 start index.js --name "name"
+```
+
+3. Simpan Status & Auto-Start saat Reboot
+
+```bash
+pm2 save && pm2 startup
+```
+---
+
+⚠️ Catatan Penting
+
+· Jangan pernah membagikan folder auth/ (berisi session WhatsApp Anda). Folder ini sudah otomatis masuk ke .gitignore.
+· Bot ini tidak disarankan untuk spam/blast massal. Gunakan dengan bijak agar nomor tidak dibanned oleh WhatsApp.
+· Jika Anda melakukan perubahan pada file .js, gunakan perintah .reload via WhatsApp atau restart bot (npm start / pm2 restart base-esm).
+
+---
+
+🤝 Kontribusi & Dukungan
+
+Jika Anda menemukan bug atau ingin menambahkan fitur, silakan buat Pull Request atau hubungi creator langsung via [WhatsApp](wa.me/62882002653075)
+
+© 2025 FarrDev - All Rights Reserved.
+
+```
