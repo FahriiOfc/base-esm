@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Session (JANGAN di-commit!)
+auth/
+session/
+
+# Database
+database/
+data/
+*.db
+*.db-shm
+*.db-wal
+
+# Temp
+temp/
+tmp/
+*.tmp
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
