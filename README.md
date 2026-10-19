@@ -94,12 +94,14 @@ Untuk verifikasi, buka CMD baru dan mengetik
 ```bash
 ffmpeg -version
 ```
+- [Git](https://github.com/git-for-windows/git/releases/download/v2.56.0.windows.2/Git-2.56.0.2-64-bit.exe): Lakukan installasi seperti aplikasi pada umumnya, klick next terus sampai selesai. Ketika sudah, cek pada CMD baru:
+```bash
+git --version
+```
 
+Edit file [config.js](https://github.com/FahriiOfc/base-esm/blob/main/config.js) untuk menyesuaikan nama bot, nomor owner, dan prefix.
 
-Edit file [config.js](https://github.com/FahriiOfc/base-esm/blob/main/config.js)
- untuk menyesuaikan nama bot, nomor owner, dan prefix.
-
-Saat pertama kali berjalan, bot akan meminta nomor WhatsApp. Masukkan nomor (contoh: 628xxx) lalu masukkan 8-digit Pairing Code yang muncul ke WhatsApp Anda (Perangkat Tertaut).
+Saat pertama kali berjalan, bot akan meminta nomor WhatsApp. Masukkan nomor (contoh: 628xxx) lalu masukkan 8-digit Custom Pairing Code yang muncul ke WhatsApp Anda (Perangkat Tertaut). Dan anda bisa custom sendiri code pairingnya, wajib 8 digit di [index.js.](https://github.com/FahriiOFc/base-esm/blob/main/index.js)
 
 ---
 
@@ -155,5 +157,3 @@ pm2 save && pm2 startup
 Jika Anda menemukan bug atau ingin menambahkan fitur, silakan buat Pull Request atau hubungi creator langsung via [WhatsApp](wa.me/62882002653075)
 
 © 2025 FarrDev - All Rights Reserved.
-
-```
