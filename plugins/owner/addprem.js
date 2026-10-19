@@ -1,6 +1,4 @@
 // command/owner/addprem.js
-// ➕ Tambah Premium User
-
 import premium from '../../lib/premium.js';
 
 export default {
