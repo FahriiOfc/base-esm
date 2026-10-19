@@ -128,7 +128,7 @@ Jika Anda menggunakan VPS, sangat disarankan menggunakan PM2 agar bot otomatis r
 1. Install PM2 (Global)
 
 ```bash
-sudo npm install -g pm2
+npm install -g pm2
 ```
 
 2. Jalankan Bot dengan PM2
