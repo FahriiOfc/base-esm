@@ -1,5 +1,4 @@
 // plugins/main/menu.js
-// Menu — raw build (basis rstest 5 + interactiveMessage)
 
 import sharp from 'sharp';
 import axios from 'axios';
