@@ -74,7 +74,7 @@ cd base-esm
 npm install
 npm start
 ```
-Edit file [config.js](https://github.com/FahriiOfc/base-esm/config.js)
+Edit file [config.js](https://github.com/FahriiOfc/base-esm/blob/main/config.js)
  untuk menyesuaikan nama bot, nomor owner, dan prefix.
 
 Saat pertama kali berjalan, bot akan meminta nomor WhatsApp. Masukkan nomor (contoh: 628xxx) lalu masukkan 8-digit Pairing Code yang muncul ke WhatsApp Anda (Perangkat Tertaut).
