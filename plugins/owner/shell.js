@@ -1,6 +1,5 @@
 // plugins/owner/shell.js
 // ⚡ Shell — Jalankan perintah shell (output mentah)
-// Custom prefix: $ (tanpa harus pakai titik)
 
 import { exec } from 'child_process';
 import { promisify } from 'util';
@@ -24,28 +23,18 @@ export default {
     category: 'owner',
     description: '⚡ Jalankan perintah shell (output mentah)',
     ownerOnly: true,
-
-    // ✅ Custom prefix: `$ <command>` tanpa butuh titik
     customPrefix: /^\$/,
 
     async execute(ctx) {
         const { args, react, sock, chat, replyWithForward, text } = ctx;
 
-        // ---------- AMBIL COMMAND ----------
-        // Karena customPrefix match `$`, kita strip `$` dari text
         let raw = (text || '').trim();
-
-        // Hapus prefix `$` di awal
         if (raw.startsWith('$')) {
             raw = raw.slice(1).trim();
         }
-
-        // Fallback ke args kalau text kosong
         if (!raw && args && args.length > 0) {
             raw = args.join(' ').trim();
         }
-
-        // ---------- VALIDASI ----------
         if (!raw) {
             await react('❌');
             return (
