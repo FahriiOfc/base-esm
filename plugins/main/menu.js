@@ -58,10 +58,10 @@ async function makeSmallIcon(url, size = 300, quality = 60) {
 // KONFIGURASI
 // ============================================================
 
-const BOT_NAME = config.botName || 'FarrMdV2';
+const BOT_NAME = config.botName; // wajib isi nama bot di config.js
 const WA_JID = '0@s.whatsapp.net';
-const BOT_WAID = String(config.ownerNumber || '').replace(/\D/g, '');
-const HEADER_IMG = 'https://raw.githubusercontent.com/FahriiOfc/thumb/main/gambar.jpg';
+const BOT_WAID = String(config.ownerNumber || '').replace(/\D/g, ''); // untuk pp fakewuoted
+const HEADER_IMG = 'https://raw.githubusercontent.com/FahriiOfc/thumb/main/gambar.jpg'; //bisa diganti yang lain, asal public
 const CHANNEL_URL = 'https://whatsapp.com/channel/0029VbDytkmBqbrF0rFKr12w';
 const NEWSLETTER_JID = '120363412274875891@newsletter'; //bisa ubah make ch sendiri
 const NEWSLETTER_NAME = `${BOT_NAME} Channel ✨`;
@@ -96,7 +96,7 @@ export default {
             `${greeting.emoji} ${greeting.text}, ${pushName || 'User'}!\n\n` +
             `╭─ \`INFORMASI BOT\` 𝜗ৎ\n` +
             `┆ ᵎᵎ Nama Bot : *${BOT_NAME}*\n` +
-            `┆ ᵎᵎ Owner Bot : *${config.ownerName || 'Owner'}*\n` +
+            `┆ ᵎᵎ Owner Bot : *${config.ownerName}*\n` +
             `┆ ᵎᵎ Prefix : *.*\n` +
             `┆ ᵎᵎ Mode : *${modeText}*\n` +
             `┆ ᵎᵎ Runtime : *${formatRuntime(process.uptime())}*\n` +
