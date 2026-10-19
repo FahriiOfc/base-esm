@@ -38,12 +38,10 @@ Dilarang memperjualbelikan base ini tanpa izin tertulis dari creator. Anda diper
 FarrMdV2/
 ├── lib/                  # Library inti (handler, serializer, dll)
 ├── plugins/              # Folder command/plugin (otomatis diload)
-│   ├── main/             # Command utama (menu, owner, runtime)
+│   ├── main/             # Command utama (menu, owner, runtime, ping)
 │   ├── owner/            # Command khusus owner (shell, eval, test)
-│   ├── tools/            # Command tools (ping, dll)
-│   └── ...
+│   └── ...               # jika ingin menambahkan plugins, buat saja folder kategorinya
 ├── database/             # File JSON (settings, premium, dll)
-├── auth/                 # Folder session WhatsApp (JANGAN DI-COMMIT)
 ├── config.js             # File konfigurasi bot
 ├── handler.js            # Message dispatcher
 ├── index.js              # Entry point (koneksi Baileys)
@@ -52,8 +50,8 @@ FarrMdV2/
 
 ---
 
-🚀 Tutorial Install: VPS (Ubuntu/Debian)
-
+🚀 Tutorial Install: VPS (Ubuntu/Debian) 
+-
 Panduan ini cocok untuk VPS yang belum memiliki Node.js atau Git sama sekali.
 
 ```bash
@@ -74,6 +72,30 @@ cd base-esm
 npm install
 npm start
 ```
+
+Atau jika anda menggunakan PC/Laptop untuk tes koneksi, anda bisa menggunakan command diatas, namun pastikan untuk menginstall ketiga paket ini :
+
+- [Nodejs](https://nodejs.org/en/download/current): Disarankan menggunakan V.22 LTS, atau bisa juga V24 LTS.
+  pilih installer .msi, dan lakukan installasi sampai selesai. klick next saja sampai selesai. untuk memastikan nodejs berjalan dan sesuai dengan versinya, cek di CMD baru dengan:
+```bash
+node -v
+npm -v
+```
+- [ffmpeg](https://www.gyan.dev/ffmpeg/builds/): Geser kebawah sampai bertemu latest release, dan pilih ffmpeg-release-full. jika anda kesulitan, bisa langsung klick tautan [disini](https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full.7z) untuk installasi.
+Jika sudah selesai. Extract file .zip ke folder C:\\ffmpeg dan pastikan ada folder bernama bin
+
+Cara Memasukkan FFmpeg ke Environment Variables Windows (Wajib):
+1. Tekan tombol Windows + R, ketik sysdm.cpl, lalu Enter.
+2. Pilih tab Advanced > klik tombol Environment Variables.
+3. Di bagian System variables, cari variabel bernama Path (atau PATH), lalu klik Edit.
+4. Klik New, lalu masukkan path folder bin tempat Anda mengextract FFmpeg tadi (Contoh: C:\ffmpeg\bin).
+5. Klik OK di semua jendela.
+Untuk verifikasi, buka CMD baru dan mengetik
+```bash
+ffmpeg -version
+```
+
+
 Edit file [config.js](https://github.com/FahriiOfc/base-esm/blob/main/config.js)
  untuk menyesuaikan nama bot, nomor owner, dan prefix.
 
@@ -82,7 +104,7 @@ Saat pertama kali berjalan, bot akan meminta nomor WhatsApp. Masukkan nomor (con
 ---
 
 📱 Tutorial Install: Termux (Android)
-
+-
 1. Update & Install Dependencies
 
 Buka Termux, lalu jalankan:
@@ -98,7 +120,7 @@ npm start
 ---
 
 ⚙️ Cara Menjalankan Bot 24/7 (Production)
-
+-
 Jika Anda menggunakan VPS, sangat disarankan menggunakan PM2 agar bot otomatis restart jika crash atau VPS reboot.
 
 1. Install PM2 (Global)
