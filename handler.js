@@ -76,7 +76,7 @@ export class Handler {
                 const data = JSON.parse(await fs.readFile(PREFIX_DB, 'utf8'));
                 this.#prefixCache.enabled = data.enabled !== false;
             } catch {
-                this.#prefixCache.enabled = true;
+                this.#prefixCache.enabled = config.modePrefix !== false;
             }
         } catch {
             this.#prefixCache.enabled = true;
