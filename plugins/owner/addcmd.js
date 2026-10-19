@@ -30,16 +30,7 @@ export default {
 
         if (!filePath) {
             return (
-                '❌ Masukkan path file!\n\n' +
-                '📌 *Cara Penggunaan:*\n' +
-                '1. `.addcmd plugins/tools/test.js`\n' +
-                '2. `.addcmd lib/helper.js`\n' +
-                '3. `.addcmd scraper/new.js`\n' +
-                '4. Reply ke file JavaScript atau pesan yang berisi source code\n\n' +
-                '📁 *Bisa di:*\n' +
-                '• plugins/      - Untuk plugin baru\n' +
-                '• lib/          - Untuk library baru\n' +
-                '• scraper/      - Untuk scraper baru\n'
+                'Masukkan path file yang jelas. Contoh:\n.agp plugins/owner/namafile.js'
             );
         }
 
