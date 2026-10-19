@@ -1,4 +1,3 @@
-// command/vps/uptime.js
 // ⏱️ Uptime VPS & bot
 
 import os from 'os';
