@@ -83,7 +83,6 @@ export default {
             '┃ 👑 .owner\n' +
             '┃ 📋 .menu\n' +
             '┃ 📋 .allmenu\n' +
-            '┃ 📋 .mainmenu\n' +
             '┃\n' +
             '╰━━━━━━━━━━━━━━━━━━━━╯\n\n' +
 
@@ -91,114 +90,10 @@ export default {
             '┃\n' +
             '┃ 🌐 .public\n' +
             '┃ 🔐 .self\n' +
-            '┃ 📖 .autoread\n' +
-            '┃ ⌨️ .autotyping\n' +
-            '┃ 🎙️ .autovn\n' +
-            '┃ 🗑️ .del\n' +
-            '┃ 🖼️ .setppbot\n' +
-            '┃ 🗑️ .delppbot\n' +
-            '┃ 📸 .getpp\n' +
-            '┃ ⛔ .blgrup\n' +
-            '┃ ✅ .unblgrup\n' +
-            '┃ 📋 .listblgrup\n' +
-            '┃ ⛔ .bluser\n' +
-            '┃ ✅ .unbluser\n' +
-            '┃ 📋 .listbluser\n' +
-            '┃ 📄 .getcmd\n' +
             '┃ ➕ .addcmd\n' +
             '┃ ✏️ .editcmd\n' +
-            '┃ ↩️ .restorecmd\n' +
-            '┃ ❌ .delcmd\n' +
-            '┃ 📂 .listcmd\n' +
-            '┃ 📋 .logcmd\n' +
-            '┃ 🔄 .restart\n' +
-            '┃ 🐛 .debug\n' +
-            '┃ 📇 .cc\n' +
+            '┃ 🔄 .reload\n' +
             '┃ ➕ .addowner\n' +
-            '┃ ❌ .delowner\n' +
-            '┃ 📋 .listowner\n' +
-            '┃ 🔄 .setowner\n' +
-            '┃ 🐛 .debug\n' +
-            '┃ 🤖 .aimode (on/off)\n' +
-            '┃ 👑 .ownermenu\n' +
-            '┃\n' +
-            '╰━━━━━━━━━━━━━━━━━━━━╯\n\n' +
-
-            '╭━━━〔 👥 GROUP MENU 〕━━━╮\n' +
-            '┃\n' +
-            '┃ 👥 .tagall\n' +
-            '┃ 📢 .hidetag\n' +
-            '┃ 🔓 .open\n' +
-            '┃ 🔒 .close\n' +
-            '┃ ⬆️ .promote\n' +
-            '┃ ⬇️ .demote\n' +
-            '┃ 🦶 .kick\n' +
-            '┃ ➕ .add\n' +
-            '┃ 🔗 .linkgc\n' +
-            '┃ ♻️ .revoke\n' +
-            '┃ 🔇 .mute\n' +
-            '┃ 🔊 .unmute\n' +
-            '┃ 📋 .listmute\n' +
-            '┃ 📸 .setpp\n' +
-            '┃ 🗑️ .delpp\n' +
-            '┃ 🏞️ .getppgc\n' +
-            '┃ 📌 .pin\n' +
-            '┃ 📌 .unpin\n' +
-            '┃ 📝 .setdesc\n' +
-            '┃ 🗑️ .deldesc\n' +
-            '┃ 📄 .getdesc\n' +
-            '┃ ✏️ .rename\n' +
-            '┃ 🔄 .resetname\n' +
-            '┃ 👥 .groupmenu\n' +
-            '┃\n' +
-            '╰━━━━━━━━━━━━━━━━━━━━╯\n\n' +
-
-            '╭━━━〔 🖼️ CONVERTER MENU 〕━━━╮\n' +
-            '┃\n' +
-            '┃ 🖼️ .sticker\n' +
-            '┃ 🖼️ .toimg\n' +
-            '┃ 🎬 .tovideo\n' +
-            '┃ 🎵 .tomp3\n' +
-            '┃ 🎤 .tovn\n' +
-            '┃ 🖼️ .stickermenu\n' +
-            '┃\n' +
-            '╰━━━━━━━━━━━━━━━━━━━━╯\n\n' +
-
-            '╭━━━〔 📥 DOWNLOADER MENU 〕━━━╮\n' +
-            '┃\n' +
-            '┃ 🎵 .ytmp3\n' +
-            '┃ 🎬 .ytmp4\n' +
-            '┃ 🎵 .tiktok <url>\n' +
-            '┃ 📸 .igdl <url>\n' +
-            '┃ 📹 .fbdl <url>\n' +
-            '┃ 📦 .github\n' +
-            '┃ 🎯 .dl <url> [auto detect]\n' +
-            '┃ 🎬 .ytdl <url> [mp3/mp4]\n' +
-            '┃ 🐦 .twitterdl <url>\n' +
-            '┃ 📌 .pindl <url>\n' +
-            '┃ 📥 .downloadmenu\n' +
-            '┃\n' +
-            '╰━━━━━━━━━━━━━━━━━━━━╯\n\n' +
-
-            '╭━━━〔 🖼️ IMAGE & TOOLS 〕━━━╮\n' +
-            '┃\n' +
-            '┃ ✂️ .removebg (reply gambar)\n' +
-            '┃ 🔍 .upscale (reply gambar)\n' +
-            '┃ 🔄 .mconvert <target> (reply file)\n' +
-            '┃ 📧 .tempmail <create/inbox>\n' +
-            '┃ 🖼️ .brat <teks>\n' +
-            '┃ 📸 .ssweb <url>\n' +
-            '┃ 🌐 .google <query>\n' +
-            '┃ 🖼️ .wallpaper <query>\n' +
-            '┃\n' +
-            '╰━━━━━━━━━━━━━━━━━━━━╯\n\n' +
-
-            '╭━━━〔 🤖 AI CHAT MENU 〕━━━╮\n' +
-            '┃\n' +
-            '┃ 💬 .claude <pesan>\n' +
-            '┃ 💬 .gpt5 <pesan>\n' +
-            '┃ 💬 .unlimitedai [karakter] <pesan>\n' +
-            '┃    └─ karakter: ourin, kobo, waguri, jokowi, prabowo\n' +
             '┃\n' +
             '╰━━━━━━━━━━━━━━━━━━━━╯\n\n' +
 
