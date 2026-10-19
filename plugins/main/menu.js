@@ -60,22 +60,17 @@ async function makeSmallIcon(url, size = 300, quality = 60) {
 
 const BOT_NAME = config.botName || 'FarrMdV2';
 const WA_JID = '0@s.whatsapp.net';
-const BOT_WAID = '6287776322996';
+const BOT_WAID = String(config.ownerNumber || '').replace(/\D/g, '');
 const HEADER_IMG = 'https://raw.githubusercontent.com/FahriiOfc/thumb/main/gambar.jpg';
 const CHANNEL_URL = 'https://whatsapp.com/channel/0029VbDytkmBqbrF0rFKr12w';
-const NEWSLETTER_JID = '120363412274875891@newsletter';
+const NEWSLETTER_JID = '120363412274875891@newsletter'; //bisa ubah make ch sendiri
 const NEWSLETTER_NAME = `${BOT_NAME} Channel ✨`;
 
 const MENU_ROWS = [
     { header: '📋 Menu Utama', title: 'Command utama bot', description: 'Tap untuk membuka', id: '.mainmenu' },
     { header: '📋 Semua Menu', title: 'Lihat semua command', description: 'Tap untuk membuka', id: '.allmenu' },
-    { header: '👑 Owner Menu', title: 'Command khusus owner', description: 'Tap untuk membuka', id: '.ownermenu' },
-    { header: '📥 Downloader', title: 'YT, TikTok, IG, FB', description: 'Tap untuk membuka', id: '.downloadmenu' },
-    { header: '🖼️ Sticker', title: 'Sticker & Converter', description: 'Tap untuk membuka', id: '.stickermenu' },
-    { header: '👥 Group', title: 'Command grup', description: 'Tap untuk membuka', id: '.groupmenu' },
-    { header: '🛠️ Tools', title: 'Brat, SSWeb & lainnya', description: 'Tap untuk membuka', id: '.toolsmenu' },
-    { header: '🤖 AI Chat', title: 'claude, gpt5 & lainnya', description: 'Tap untuk membuka', id: '.aimenu' }
-];
+    { header: '👑 Owner Menu', title: 'Command khusus owner', description: 'Tap untuk membuka', id: '.ownermenu' }
+]; // kalo mau nambahin, tinggal tambahin aja sesuai keperluan, asal rowidnya benar dan bisa dipanggil 
 
 // ============================================================
 // COMMAND
