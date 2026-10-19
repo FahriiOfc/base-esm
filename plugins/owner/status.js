@@ -1,4 +1,3 @@
-// command/vps/status.js
 // 📊 Info VPS (Full System)
 
 import { exec } from 'child_process';
