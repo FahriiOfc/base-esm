@@ -4,11 +4,11 @@ export default {
     // Isi config
     // =========================================
     
-    ownerNumber: '628xxx', //nama
-    ownerName: 'Owner', //owner
+    ownerNumber: '628xxx', //nomor owner
+    ownerName: 'Owner', //nama owner
     botName: 'name', //nama bot
     prefix: ['.', '!', '#'], //prefix
-    mode: 'public', //mode bot, default self
+    mode: 'self', //mode bot, default self
     sessionName: 'auth', //nama auth
     selfResponse: true, //bisa respons bot sendiri apa ngga
     autoread: false,
@@ -21,7 +21,7 @@ export default {
     
     reconnect: {
         enabled: true,
-        maxAttempts: 5,
+        maxAttempts: 5, //jika reconect, ini maks berapa kali connect
         delay: 5000
     },
     
