@@ -8,6 +8,7 @@ export default {
     ownerName: 'Owner', //nama owner
     botName: 'name', //nama bot
     prefix: ['.', '!', '#'], //prefix
+    modePrefix: true, // true = wajib prefix, false = tanpa prefix
     mode: 'self', //mode bot, default self
     sessionName: 'auth', //nama auth
     selfResponse: true, //bisa respons bot sendiri apa ngga
