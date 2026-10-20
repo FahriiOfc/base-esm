@@ -224,7 +224,9 @@ END:VCARD`
                                 content: [{ tag: 'native_flow', attrs: { v: '9', name: 'mixed' } }]
                             }
                         ]
-                    }
+                    },
+                    // 👇 INI DIA 1 BARIS AJAIB YANG DITAMBAHKAN 👇
+                    ...(chat.endsWith('@g.us') ? [] : [{ tag: 'bot', attrs: { biz_bot: '1' } }])
                 ]
             });
 
