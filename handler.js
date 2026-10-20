@@ -1,7 +1,5 @@
 // handler.js
 // FarrMdV2 - Message Dispatcher
-// Tanggung jawab: terima pesan → serialize → cari command → execute
-// Semua handler khusus (YT, getcmd, list, button, autoVN, media) ada di lib/helper.js
 
 import config from './config.js';
 import serializer from './lib/serializer.js';
@@ -14,10 +12,7 @@ import { sendWithReply } from './lib/replyHelper.js';
 import { normalizeJid } from './lib/identity.js';
 import helper from './lib/helper.js';
 
-// ============================================================
-// KATEGORI YANG WAJIB PUNYA LOG PROGRES
-// ============================================================
-
+// kategori yang wajib punya logs
 const LOG_CATEGORIES = new Set([
     'downloader',
     'converter',
@@ -36,11 +31,7 @@ export class Handler {
     constructor(commandLoader) {
         this.#commandLoader = commandLoader;
     }
-
-    // ============================================================
-    // GET SENDER
-    // ============================================================
-
+//get sender
     getSender(message) {
         if (!message) return '';
         const key = message.key || {};
@@ -54,11 +45,7 @@ export class Handler {
 
         return normalizeJid(sender);
     }
-
-    // ============================================================
-    // PREFIX MODE (CACHED 5 DETIK)
-    // ============================================================
-
+//prefix mode cached 5 detik
     async #isPrefixEnabled() {
         const now = Date.now();
         if (now - this.#prefixCache.checkedAt < 5000) {
@@ -166,11 +153,7 @@ if (isInteractiveResponse) {
     const handled = await helper.handleInteractiveResponse(message, ctx, sock);
     if (handled?.stop) return;
 }
-
-             // ============================================================
-            // ✅ CUSTOM PREFIX CHECK
-            // Trigger command dengan `customPrefix` (contoh: `=>` untuk eval)
-            // ============================================================
+            //custom prefix
 
             if (!isListResponse && !isButtonResponse && !isInteractiveResponse && ctx.text) {
                 const rawText = ctx.text;
@@ -186,8 +169,7 @@ if (isInteractiveResponse) {
                 }
 
                 if (!allowedBySelfMode) {
-                    // Silent — bukan owner/premium di self mode
-                    return;
+                    return; //silent kalo bukan owner/premium
                 }
 
                 for (const cmd of this.#commandLoader.getCommands().values()) {
@@ -237,8 +219,6 @@ if (isInteractiveResponse) {
                         await ctx.reply(`❌ ${e.message}`);
                         await ctx.react('❌');
                     }
-
-                    // Stop — jangan lanjut ke parse command biasa
                     return;
                 }
             }
@@ -294,7 +274,7 @@ if (isInteractiveResponse) {
                 return;
             }
 
-            // Permission check (SEBELUM react)
+            // Permission check
             const permCheck = await identity.checkCommandPermissions(ctx, cmd);
             if (!permCheck.allowed) {
                 await ctx.reply(permCheck.reason);
