@@ -499,13 +499,11 @@ process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('uncaughtException', (error) => {
     console.error(`${ts()} [UNCAUGHT]`, error?.message || error);
     console.error(error?.stack || '');
-    // Jangan exit — biar PM2 / bot tetap hidup
 });
 
 process.on('unhandledRejection', (reason) => {
     console.error(`${ts()} [UNHANDLED REJECTION]`, reason?.message || reason);
     if (reason?.stack) console.error(reason.stack);
-    // Jangan exit
 });
 
 // ============================================================
