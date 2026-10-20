@@ -3,78 +3,31 @@
 import sharp from 'sharp';
 import axios from 'axios';
 import config from '../../config.js';
-import settings from '../../lib/settings.js';
 
-// ============================================================
-// HELPERS
-// ============================================================
+const BOT_NAME = config.botName || 'FarrMdV2';
+const HEADER_IMG = 'https://raw.githubusercontent.com/FahriiOfc/thumb/main/gambar.jpg'; //ubah header, kalo mau lokal, cari tau sendiri
 
-function getTimeGreeting() {
-    const hour = Number(new Intl.DateTimeFormat('id-ID', {
-        timeZone: 'Asia/Jakarta', hour: '2-digit', hour12: false
-    }).format(new Date()));
-    if (hour >= 4 && hour < 11) return { emoji: '🌅', text: 'Selamat pagi' };
-    if (hour >= 11 && hour < 15) return { emoji: '☀️', text: 'Selamat siang' };
-    if (hour >= 15 && hour < 18) return { emoji: '🌇', text: 'Selamat sore' };
-    return { emoji: '🌙', text: 'Selamat malam' };
-}
-
-function formatDate() {
-    return new Intl.DateTimeFormat('id-ID', {
-        timeZone: 'Asia/Jakarta', weekday: 'long', day: '2-digit',
-        month: 'long', year: 'numeric'
-    }).format(new Date());
-}
-
-function formatTime() {
-    return new Intl.DateTimeFormat('id-ID', {
-        timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit',
-        second: '2-digit', hour12: false
-    }).format(new Date());
-}
-
-function formatRuntime(s) {
-    s = Math.floor(Number(s) || 0);
-    const d = Math.floor(s / 86400); s %= 86400;
-    const h = Math.floor(s / 3600); s %= 3600;
-    const m = Math.floor(s / 60); s %= 60;
-    const r = [];
-    if (d) r.push(`${d}d`); if (h) r.push(`${h}h`); if (m) r.push(`${m}m`);
-    r.push(`${s}s`);
-    return r.join(', ');
-}
-
-async function makeSmallIcon(url, size = 300, quality = 60) {
+function getPrefixStatus() {
     try {
-        const buf = Buffer.from((await axios.get(url, { responseType: 'arraybuffer' })).data);
-        return await sharp(buf).resize(size, size, { fit: 'cover' }).jpeg({ quality }).toBuffer();
+        const PREFIX_DB = path.join(__dirname, '../../database/modeprefix.json');
+        if (fs.existsSync(PREFIX_DB)) {
+            const data = JSON.parse(fs.readFileSync(PREFIX_DB, 'utf8'));
+            return data.enabled !== false ? 'On' : 'Off';
+        } else {
+            return config.modePrefix !== false ? 'On' : 'Off';
+        }
     } catch (e) {
-        console.log('[MENU] Thumb error:', e.message);
-        return null;
+        return config.modePrefix !== false ? 'On' : 'Off';
     }
 }
 
-// ============================================================
-// KONFIGURASI
-// ============================================================
-
-const BOT_NAME = config.botName; // wajib isi nama bot di config.js
-const WA_JID = '0@s.whatsapp.net';
-const BOT_WAID = String(config.ownerNumber || '').replace(/\D/g, ''); // untuk pp fakewuoted
-const HEADER_IMG = 'https://raw.githubusercontent.com/FahriiOfc/thumb/main/gambar.jpg'; //bisa diganti yang lain, asal public
-const CHANNEL_URL = 'https://whatsapp.com/channel/0029VbDytkmBqbrF0rFKr12w';
-const NEWSLETTER_JID = '120363412274875891@newsletter'; //bisa ubah make ch sendiri
-const NEWSLETTER_NAME = `${BOT_NAME} Channel ✨`;
-
-const MENU_ROWS = [
-    { header: '📋 Menu Utama', title: 'Command utama bot', description: 'Tap untuk membuka', id: '.mainmenu' },
-    { header: '📋 Semua Menu', title: 'Lihat semua command', description: 'Tap untuk membuka', id: '.allmenu' },
-    { header: '👑 Owner Menu', title: 'Command khusus owner', description: 'Tap untuk membuka', id: '.ownermenu' }
-]; // kalo mau nambahin, tinggal tambahin aja sesuai keperluan, asal rowidnya benar dan bisa dipanggil 
-
-// ============================================================
-// COMMAND
-// ============================================================
+function getGreeting() {
+    const hour = new Date().getHours();
+    if (hour >= 4 && hour < 11) return 'Selamat pagi';
+    if (hour >= 11 && hour < 15) return 'Selamat siang';
+    if (hour >= 15 && hour < 18) return 'Selamat sore';
+    return 'Selamat malam';
+}
 
 export default {
     name: 'menu',
@@ -83,160 +36,134 @@ export default {
     description: 'Show main menu',
 
     async execute(ctx) {
-        const { sock, chat, sender, pushName, react } = ctx;
-
+        const { sock, chat, sender, react } = ctx;
         await react('⏳');
-
-        const greeting = getTimeGreeting();
-        const modeText = settings.getValue('mode') === 'self' ? '🔐 Self Mode' : '🌐 Public Mode';
-        const fileNameDisplay = `${greeting.text} ${greeting.emoji}`;
-
-        const bodyText =
-            `Hallo Kak *@${sender.split('@')[0]}*\n\n` +
-            `${greeting.emoji} ${greeting.text}, ${pushName || 'User'}!\n\n` +
-            `╭─ \`INFORMASI BOT\` 𝜗ৎ\n` +
-            `┆ ᵎᵎ Nama Bot : *${BOT_NAME}*\n` +
-            `┆ ᵎᵎ Owner Bot : *${config.ownerName}*\n` +
-            `┆ ᵎᵎ Prefix : *.*\n` +
-            `┆ ᵎᵎ Mode : *${modeText}*\n` +
-            `┆ ᵎᵎ Runtime : *${formatRuntime(process.uptime())}*\n` +
-            `┆ ᵎᵎ Tanggal : *${formatDate()}*\n` +
-            `┆ ᵎᵎ Waktu : *${formatTime()} WIB*\n` +
-            `╰─────\n\n` +
-            `silahkan tekan tombol dibawah untuk memilih menu`;
-
+        
+        let thumbBase64 = null;
         try {
-            const { prepareWAMessageMedia, generateWAMessageFromContent, generateMessageIDV2 } = await import('@whiskeysockets/baileys');
+            const buf = Buffer.from((await axios.get(HEADER_IMG, { responseType: 'arraybuffer' })).data);
+            const thumb = await sharp(buf).resize(300, 300, { fit: 'cover' }).jpeg({ quality: 60 }).toBuffer();
+            thumbBase64 = thumb.toString('base64');
+        } catch (e) {
+            console.log('[MENU] Gagal load thumbnail:', e.message);
+        }
 
-            // ---------- Upload media (document) ----------
-            const thumb = await makeSmallIcon(HEADER_IMG, 300, 60);
-            const img = await makeSmallIcon(HEADER_IMG, 800, 85);
-
-            const upload = await prepareWAMessageMedia(
-                {
-                    document: img || thumb,
-                    mimetype: 'image/png',
-                    fileName: fileNameDisplay
+        const runtime = process.uptime();
+        const h = Math.floor(runtime / 3600);
+        const m = Math.floor((runtime % 3600) / 60);
+        const s = Math.floor(runtime % 60);
+        const runtimeStr = `${h > 0 ? h + 'h ' : ''}${m > 0 ? m + 'm ' : ''}${s}s`;
+        const dateStr = new Intl.DateTimeFormat('id-ID', {
+            timeZone: 'Asia/Jakarta', weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+        }).format(new Date());
+        
+        const timeStr = new Intl.DateTimeFormat('id-ID', {
+            timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+        }).format(new Date());
+        
+        const botMode = settings.getValue('mode') === 'self' ? 'Self Mode' : 'Public Mode';
+        
+        const msgContent = {
+            buttonsMessage: {
+                locationMessage: {
+                    degreesLatitude: 0,
+                    degreesLongitude: 0,
+                    name: BOT_NAME,
+                    address: `Runtime: ${runtimeStr}`,
+                    ...(thumbBase64 && { jpegThumbnail: thumbBase64 })
                 },
-                { upload: sock.waUploadToServer }
-            );
-
-            upload.documentMessage.fileLength = '100000000000000';
-            upload.documentMessage.fileName = fileNameDisplay;
-            upload.documentMessage.jpegThumbnail = thumb;
-
-            // ---------- Build interactiveMessage ----------
-            const interactiveMessage = {
-                header: {
-                    title: '',
-                    subtitle: '',
-                    documentMessage: upload.documentMessage,
-                    hasMediaAttachment: true
+                    contentText: 
+                    `乂 *BOT INFORMATION*\n\n` +
+                    `Halo @${sender.split('@')[0]}, ${getGreeting()}! 👋\n\n` +
+                    `╭─ \`INFORMASI\` 𝜗ৎ\n` +
+                    `┆ ᵎᵎ Owner : *${config.ownerName || 'Owner'}*\n` +
+                    `┆ ᵎᵎ Prefix : *${prefixStatus}*\n` +
+                    `┆ ᵎᵎ Mode : *${botMode}*\n` +
+                    `┆ ᵎᵎ Runtime : *${runtimeStr}*\n` +
+                    `┆ ᵎᵎ Tanggal : *${dateStr}*\n` +
+                    `┆ ᵎᵎ Waktu : *${timeStr} WIB*\n` +
+                    `╰─────\n\n` +
+                    `╭─ \`MAIN MENU\` 𝜗ৎ\n` +
+                    `┆ ᵎᵎ .menu\n` +
+                    `┆ ᵎᵎ .runtime\n` +
+                    `┆ ᵎᵎ .ping\n` +
+                    `┆ ᵎᵎ .owner\n` +
+                    `╰─────\n\n` +
+                    `╭─ \`OWNER MENU\` 𝜗ৎ\n` +
+                    `┆ ᵎᵎ .addcmd\n` +
+                    `┆ ᵎᵎ .addowner\n` +
+                    `┆ ᵎᵎ .addprem\n` +
+                    `┆ ᵎᵎ .backup\n` +
+                    `┆ ᵎᵎ .cat\n` +
+                    `┆ ᵎᵎ .cat2\n` +
+                    `┆ ᵎᵎ .edit\n` +
+                    `┆ ᵎᵎ .eval\n` +
+                    `┆ ᵎᵎ .get\n` +
+                    `┆ ᵎᵎ .public\n` +
+                    `┆ ᵎᵎ .reload\n` +
+                    `┆ ᵎᵎ .restart\n` +
+                    `┆ ᵎᵎ .run\n` +
+                    `┆ ᵎᵎ .shell\n` +
+                    `┆ ᵎᵎ .status\n` +
+                    `┆ ᵎᵎ .uptime\n` +
+                    `╰─────\n\n` +
+                    `_Silakan pilih menu di bawah ini._`,
+                footerText: BOT_NAME,
+                contextInfo: {
+                    mentionedJid: [sender]
                 },
-                body: { text: bodyText },
-                footer: { text: `© ${BOT_NAME} ${new Date().getFullYear()}` },
-                nativeFlowMessage: {
-                    buttons: [
-                        {
-                            name: 'single_select',
-                            buttonParamsJson: JSON.stringify({
-                                title: 'Pilihan Menu',
+                buttons: [
+                    {
+                        buttonId: "menu",
+                        buttonText: { displayText: "📋 MENU" },
+                        type: 1,
+                        nativeFlowInfo: {
+                            name: "single_select",
+                            paramsJson: JSON.stringify({
+                                title: "Pilih Menu",
                                 sections: [{
-                                    title: '🍀 Silahkan pilih menu yang kamu inginkan',
+                                    title: "Main Menu",
                                     highlight_label: BOT_NAME,
-                                    rows: MENU_ROWS
-                                }],
-                                has_multiple_buttons: true
+                                    rows: [
+                                        { header: "", title: "Menu Utama", id: ".menu", highlight_label: "Semua Fitur" },
+                                        { header: "", title: "Ping", id: ".ping", highlight_label: "Cek Bot" },
+                                        { header: "", title: "Owner", id: ".owner", highlight_label: "Kontak" }
+                                    ]
+                                }]
                             })
                         }
-                    ],
-                    messageParamsJson: JSON.stringify({
-                        limited_time_offer: {
-                            text: 'Gunakan bot ini dengan bijak yak',
-                            url: CHANNEL_URL,
-                            copy_code: BOT_NAME,
-                            expiration_time: Date.now() + 86400000
-                        },
-                        bottom_sheet: {
-                            in_thread_buttons_limit: 2,
-                            divider_indices: [1, 2, 3, 4, 5, 999],
-                            list_title: 'Pilih Menu',
-                            button_title: '🍀 Pilih Menu Disini'
-                        }
-                    })
-                },
-                contextInfo: {
-                    participant: WA_JID,
-                    remoteJid: 'status@broadcast',
-                    mentionedJid: [sender],
-                    forwardingScore: 999,
-                    isForwarded: true,
-                    forwardedNewsletterMessageInfo: {
-                        newsletterJid: NEWSLETTER_JID,
-                        serverMessageId: 127,
-                        newsletterName: NEWSLETTER_NAME
                     },
-                    quotedMessage: {
-                        contactMessage: {
-                            displayName: `🪸 ${BOT_NAME}`,
-                            vcard: `BEGIN:VCARD
-VERSION:3.0
-N:XL;ttname,;;;
-FN:ttname
-item1.TEL;waid=${BOT_WAID}:+${BOT_WAID}
-item1.X-ABLabel:Ponsel
-END:VCARD`
-                        }
+                    {
+                        buttonId: ".ping",
+                        buttonText: { displayText: "⚡ PING" },
+                        type: 1
                     }
-                }
-            };
-
-            // ---------- Build WAMessage ----------
-            const msg = generateWAMessageFromContent(
-                chat,
-                { interactiveMessage },
-                { messageId: generateMessageIDV2(), userJid: sock.user?.id }
-            );
-
-            // ---------- Relay manual ----------
-            await sock.relayMessage(msg.key.remoteJid, msg.message, {
-                messageId: msg.key.id,
-                additionalAttributes: { expiration: '86400' },
+                ],
+                headerType: 6
+            }
+        };
+        await sock.relayMessage(
+            chat,
+            msgContent,
+            {
                 additionalNodes: [
                     {
-                        tag: 'biz',
-                        attrs: {
-                            actual_actors: '2',
-                            host_storage: '2',
-                            privacy_mode_ts: String(Math.floor(Date.now() / 1000))
-                        },
+                        tag: "biz",
+                        attrs: {},
                         content: [
                             {
-                                tag: 'engagement',
-                                attrs: {
-                                    customer_service_state: 'open',
-                                    conversation_state: 'open'
-                                }
-                            },
-                            {
-                                tag: 'interactive',
-                                attrs: { type: 'native_flow', v: '1' },
-                                content: [{ tag: 'native_flow', attrs: { v: '9', name: 'mixed' } }]
+                                tag: "interactive",
+                                attrs: { type: "native_flow", v: "1" },
+                                content: [
+                                    { tag: "native_flow", attrs: { v: "9", name: "mixed" } }
+                                ]
                             }
                         ]
-                    },
-                    // 👇 INI DIA 1 BARIS AJAIB YANG DITAMBAHKAN 👇
-                    ...(chat.endsWith('@g.us') ? [] : [{ tag: 'bot', attrs: { biz_bot: '1' } }])
+                    }
                 ]
-            });
+            }
+        );
 
-            await react('✅');
-
-        } catch (error) {
-            console.log('[MENU] Error:', error.message);
-            console.log('[MENU] Stack:', (error.stack || '').split('\n').slice(0, 4).join('\n'));
-            await react('❌');
-            await ctx.reply(`❌ Menu gagal render: ${error.message}`);
-        }
+        await react('✅');
     }
 };
