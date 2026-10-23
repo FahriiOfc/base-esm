@@ -1,8 +1,9 @@
-// plugins/owner/eval.js
-// 🧪 Eval - Jalankan kode JavaScript (=> kode)
-
 import util from 'util';
 import * as baileys from '@whiskeysockets/baileys';
+import fs from 'fs';
+import path from 'path';
+import axios from 'axios';
+import crypto from 'crypto';
 
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
@@ -17,61 +18,34 @@ export default {
 
     async execute(ctx) {
         const { sock, chat, sender, message, quoted, args, text, react, reply } = ctx;
-
-        // ============================================================
-        // AMBIL CODE
-        // ============================================================
-
         let code = '';
-
         if (text && text.trim()) {
             code = text.trim();
         }
-
         if (!code && args && args.length > 0) {
             code = args.join(' ');
         }
-
         if (!code && quoted?.text) {
             code = quoted.text;
         }
-
         if (code.startsWith('=>')) {
             code = code.slice(2).trim();
         }
-
         if (!code || code.length === 0) {
             await react('❌');
             return (
-                '🧪 *Eval*\n\n' +
-                '❌ Masukkan kode JavaScript!\n\n' +
-                '📌 *Contoh:*\n' +
-                '=> 1 + 1\n' +
-                '=> global.config\n' +
-                '=> await sock.sendMessage(chat, { text: "Halo" })'
-            );
-        }
-
+                'Masukan code Eval. Contoh:\n=> await sock.sendMessage(chat, { text: "Halo" })');}
         await react('⏳');
-
         console.log('[EVAL] Code:', code.slice(0, 100));
-
-        // ============================================================
-        // DETEKSI EXPRESSION
-        // ============================================================
-
         const isExpression =
             !/^(const|let|var|if|for|while|do|switch|try|throw|return|class|function|async\s+function|async\s*\()\b/.test(code) &&
             !/[;{}]\s*$/.test(code) &&
             !code.includes('\n');
 
         const body = isExpression ? `return (${code})` : code;
-
-        // ============================================================
-        // BUILD KONTEKS
-        // ============================================================
-
+        
         const m = {
+            id: message.key.id,
             chat: chat,
             sender: sender,
             key: message.key,
@@ -87,16 +61,26 @@ export default {
             conn: sock,
             sock: sock,
             WaSocket: sock,
+            client: sock,
             chat: chat,
             sender: sender,
             ctx: ctx,
             message: message,
             quoted: quoted,
+            args: args,
+            text: text,
 
             console: console,
             Buffer: Buffer,
-            crypto: (await import('crypto')).default,
+            crypto: crypto,
             util: util,
+            global: global,
+            process: process,
+
+            fs: fs,
+            path: path,
+            axios: axios,
+
             setTimeout: setTimeout,
             clearTimeout: clearTimeout,
             setInterval: setInterval,
@@ -112,21 +96,24 @@ export default {
             Date: Date,
             RegExp: RegExp,
             Error: Error,
-
-            global: global
         };
 
         context.baileys = baileys;
         context.generateWAMessageFromContent = baileys.generateWAMessageFromContent;
         context.generateWAMessage = baileys.generateWAMessage;
+        context.generateMessageIDV2 = baileys.generateMessageIDV2;
         context.proto = baileys.proto;
         context.downloadMediaMessage = baileys.downloadMediaMessage;
+        context.prepareWAMessageMedia = baileys.prepareWAMessageMedia;
+        context.encodeWAMessage = baileys.encodeWAMessage;
+        context.encodeSignedDeviceIdentity = baileys.encodeSignedDeviceIdentity;
         context.DisconnectReason = baileys.DisconnectReason;
         context.delay = baileys.delay || ((ms) => new Promise(r => setTimeout(r, ms)));
 
-        // ============================================================
-        // EXECUTE
-        // ============================================================
+        if (ctx.isOwner !== undefined) context.isOwner = ctx.isOwner;
+        if (ctx.isAdmin !== undefined) context.isAdmin = ctx.isAdmin;
+        if (ctx.isGroup !== undefined) context.isGroup = ctx.isGroup;
+        if (ctx.fromMe !== undefined) context.fromMe = ctx.fromMe;
 
         let result;
         let error = null;
@@ -142,10 +129,6 @@ export default {
             error = e;
         }
 
-        // ============================================================
-        // FORMAT OUTPUT
-        // ============================================================
-
         let output;
         const mentions = [];
 
@@ -159,10 +142,8 @@ export default {
             output = `✅ *Executed*\n\n_Return: undefined_`;
             await react('✅');
         } else if (typeof result === 'string') {
-            // STRING: kirim langsung (biar mention kena, gak dibungkus code block)
             output = result;
 
-            // Auto-mention: @<angka> → pakai LID utuh (WA auto-resolve di UI)
             const matches = result.match(/@(\d+)/g) || [];
             for (const match of matches) {
                 const num = match.slice(1);
@@ -172,7 +153,6 @@ export default {
 
             await react('✅');
         } else {
-            // OBJECT: inspect + code block
             let resultStr = util.inspect(result, {
                 depth: 3,
                 colors: false,
@@ -190,12 +170,7 @@ export default {
 
         console.log('[EVAL] Output length:', output.length, '| mentions:', mentions.length);
 
-        // ============================================================
-        // SEND
-        // ============================================================
-
         try {
-            // Gabung mentions: auto-mention dari result + sender (biar user dapat notif)
             const allMentions = [...new Set([...mentions, sender])].filter(Boolean);
 
             await sock.sendMessage(chat, {
