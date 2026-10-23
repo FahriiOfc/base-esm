@@ -34,13 +34,8 @@ export default {
             );
         }
 
-        // ============================================================
-        // VALIDASI PATH
-        // ============================================================
-
         const normalized = path.normalize(filePath);
         const fullPath = path.resolve(PROJECT_ROOT, normalized);
-
         const isInCommand = fullPath.startsWith(COMMAND_DIR);
         const isInLib = fullPath.startsWith(LIB_DIR);
         const isInScraper = fullPath.startsWith(SCRAPER_DIR);
@@ -52,11 +47,7 @@ export default {
         if (!fullPath.endsWith('.js')) {
             return '❌ File harus .js';
         }
-
-        // ============================================================
-        // CEK APAKAH FILE SUDAH ADA
-        // ============================================================
-
+        
         try {
             await fs.access(fullPath);
             return (
@@ -65,12 +56,7 @@ export default {
                 `atau .delcmd ${filePath} untuk menghapus`
             );
         } catch {
-            // File tidak ada, lanjut
         }
-
-        // ============================================================
-        // AMBIL SOURCE CODE
-        // ============================================================
 
         let source = null;
 
@@ -111,10 +97,6 @@ export default {
             );
         }
 
-        // ============================================================
-        // VALIDASI SOURCE (khusus command)
-        // ============================================================
-
         let isCommand = false;
         if (isInCommand) {
             if (!source.includes('export default') || !source.includes('execute')) {
@@ -123,23 +105,13 @@ export default {
             isCommand = true;
         }
 
-        // ============================================================
-        // SIMPAN KE FILE
-        // ============================================================
-
         try {
-            // Buat folder kalau belum ada
             await fs.mkdir(path.dirname(fullPath), { recursive: true });
             await fs.writeFile(fullPath, source, 'utf8');
             console.log('[ADDCMD] File saved:', fullPath);
         } catch (error) {
             return `❌ Gagal menulis file: ${error.message}`;
         }
-
-        // ============================================================
-        // REGISTER COMMAND (jika di plugins/)
-        // ============================================================
-
         let resultMessage = `✅ File berhasil dibuat!\n\n📁 ${path.relative(PROJECT_ROOT, fullPath)}`;
 
         if (isCommand) {
