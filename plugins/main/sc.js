@@ -1,7 +1,13 @@
+/*
+TOLONG HARGAI YAKK BASENYA
+bole lu riname, bole lu otak atik, asal lu ga ngilangin sumber aslinya
+thanks
+*/
 import { Button } from '../../lib/MessageBuilder.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import config from '../../config.js':
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,7 +22,6 @@ export default {
         const { sock, chat, message } = ctx;
 
         const url = 'https://github.com/FahriiOfc/base-esm';
-        
         const teks = `> 📜 *INFO SCRIPT*\n` +
                      `> Bot ini menggunakan base dari GitHub:\n` +
                      `> 🔗 ${url}\n` +
@@ -37,7 +42,7 @@ export default {
         try {
             const btn = new Button(sock)
                 .setBody(teks)
-                .setFooter('FarrMdV2 Bot')
+                .setFooter('config.botName')
                 .addCopy('📋 Copy Link', url)
                 .addUrl('🔗 Buka Link', url);
             
