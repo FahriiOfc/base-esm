@@ -1,7 +1,6 @@
 // plugins/main/menu.js
 
 import sharp from 'sharp';
-import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -10,9 +9,8 @@ import settings from '../../lib/settings.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 const BOT_NAME = config.botName || 'FarrMdV2';
-const HEADER_IMG = 'https://raw.githubusercontent.com/FahriiOfc/thumb/main/gambar.jpg';
+const LOCAL_THUMB = path.join(__dirname, '../../thumb/thumb.jpg');
 
 function getPrefixStatus() {
     try {
@@ -55,9 +53,12 @@ export default {
 
         let thumbBase64 = null;
         try {
-            const buf = Buffer.from((await axios.get(HEADER_IMG, { responseType: 'arraybuffer' })).data);
-            const thumb = await sharp(buf).resize(300, 300, { fit: 'cover' }).jpeg({ quality: 60 }).toBuffer();
-            thumbBase64 = thumb.toString('base64');
+            if (fs.existsSync(LOCAL_THUMB)) {
+                const thumb = await sharp(LOCAL_THUMB).resize(300, 300, { fit: 'cover' }).jpeg({ quality: 60 }).toBuffer();
+                thumbBase64 = thumb.toString('base64');
+            } else {
+                console.log('[MENU] File thumb/thumb.jpg tidak ditemukan!');
+            }
         } catch (e) {
             console.log('[MENU] Gagal load thumbnail:', e.message);
         }
@@ -82,11 +83,12 @@ export default {
             minute: '2-digit', 
             second: '2-digit', 
             hour12: false
-        }).format(new Date()).replace(/\./g, ':'); // Kadang ID locale pake titik (17.30), kita ganti jadi titik dua (:)
+        }).format(new Date()).replace(/\./g, ':'); 
 
         const botMode = settings.getValue('mode') === 'self' ? 'Self Mode' : 'Public Mode';
         const prefixStatus = getPrefixStatus();
         const greeting = getGreeting();
+        
         const msgContent = {
             buttonsMessage: {
                 locationMessage: {
@@ -98,7 +100,7 @@ export default {
                 },
                 contentText: 
                     `乂 *BOT INFORMATION*\n\n` +
-                    `Halo @${sender.split('@')[0]}, ${greeting}! 👋\n\n` + // 🔥 GREETING DISINI
+                    `Halo @${sender.split('@')[0]}, ${greeting}! 👋\n\n` +
                     `╭─ \`INFORMASI\` 𝜗ৎ\n` +
                     `┆ ᵎᵎ Owner : *${config.ownerName || 'Owner'}*\n` +
                     `┆ ᵎᵎ Prefix : *${prefixStatus}*\n` +
@@ -184,6 +186,7 @@ export default {
                 headerType: 6
             }
         };
+        
         await sock.relayMessage(
             chat,
             msgContent,
