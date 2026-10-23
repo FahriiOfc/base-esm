@@ -1,14 +1,7 @@
-// plugins/owner/shell.js
-// ⚡ Shell — Jalankan perintah shell (output mentah)
-
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
 const execAsync = promisify(exec);
-
-// ============================================================
-// BERSIHIN ANSI (KHUSUS PM2 STATUS)
-// ============================================================
 
 function cleanAnsi(text) {
     return text
@@ -51,7 +44,6 @@ export default {
         const command = raw;
         await react('⏳');
 
-        // ---------- KIRIM PESAN PROGRESS ----------
         let sent;
         try {
             sent = await replyWithForward(`$ ${command}\n\n⏳ Menjalankan...`);
