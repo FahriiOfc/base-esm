@@ -1,10 +1,17 @@
 import util from 'util';
 import * as baileys from '@whiskeysockets/baileys';
 import fs from 'fs';
+import fsPromises from 'fs/promises';
 import path from 'path';
 import axios from 'axios';
 import crypto from 'crypto';
+import sharp from 'sharp';
+import os from 'os';
+import { exec, spawn } from 'child_process';
+import { promisify } from 'util';
+import { Button, ButtonV2, Carousel, AIRich, Toolkit } from '../../lib/MessageBuilder.js';
 
+const execAsync = promisify(exec);
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 export default {
@@ -18,25 +25,21 @@ export default {
 
     async execute(ctx) {
         const { sock, chat, sender, message, quoted, args, text, react, reply } = ctx;
+        
         let code = '';
-        if (text && text.trim()) {
-            code = text.trim();
-        }
-        if (!code && args && args.length > 0) {
-            code = args.join(' ');
-        }
-        if (!code && quoted?.text) {
-            code = quoted.text;
-        }
-        if (code.startsWith('=>')) {
-            code = code.slice(2).trim();
-        }
+        if (text && text.trim()) code = text.trim();
+        if (!code && args && args.length > 0) code = args.join(' ');
+        if (!code && quoted?.text) code = quoted.text;
+        if (code.startsWith('=>')) code = code.slice(2).trim();
+
         if (!code || code.length === 0) {
             await react('❌');
-            return (
-                'Masukan code Eval. Contoh:\n=> await sock.sendMessage(chat, { text: "Halo" })');}
+            return 'Masukan code Eval. Contoh:\n=> await sock.sendMessage(chat, { text: "Halo" })';
+        }
+
         await react('⏳');
         console.log('[EVAL] Code:', code.slice(0, 100));
+
         const isExpression =
             !/^(const|let|var|if|for|while|do|switch|try|throw|return|class|function|async\s+function|async\s*\()\b/.test(code) &&
             !/[;{}]\s*$/.test(code) &&
@@ -69,23 +72,39 @@ export default {
             quoted: quoted,
             args: args,
             text: text,
-
+            //mb builder
+            Button: Button,
+            ButtonV2: ButtonV2,
+            Carousel: Carousel,
+            AIRich: AIRich,
+            Toolkit: Toolkit,
+            MessageBuilder: { Button, ButtonV2, Carousel, AIRich, Toolkit },
+    
             console: console,
             Buffer: Buffer,
-            crypto: crypto,
-            util: util,
-            global: global,
             process: process,
-
+            global: global,
+            util: util,
+            os: os,
+            
             fs: fs,
+            fsPromises: fsPromises,
             path: path,
+
+            crypto: crypto,
             axios: axios,
+            sharp: sharp,
+
+            exec: exec,
+            execAsync: execAsync,
+            spawn: spawn,
 
             setTimeout: setTimeout,
             clearTimeout: clearTimeout,
             setInterval: setInterval,
             clearInterval: clearInterval,
             Promise: Promise,
+
             JSON: JSON,
             Object: Object,
             Array: Array,
@@ -99,10 +118,10 @@ export default {
         };
 
         context.baileys = baileys;
+        context.proto = baileys.proto;
         context.generateWAMessageFromContent = baileys.generateWAMessageFromContent;
         context.generateWAMessage = baileys.generateWAMessage;
         context.generateMessageIDV2 = baileys.generateMessageIDV2;
-        context.proto = baileys.proto;
         context.downloadMediaMessage = baileys.downloadMediaMessage;
         context.prepareWAMessageMedia = baileys.prepareWAMessageMedia;
         context.encodeWAMessage = baileys.encodeWAMessage;

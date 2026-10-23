@@ -1,10 +1,11 @@
-// plugins/owner/get.js
-//smart search file
+// command/vps/get.js
+// 📥 Download file dari VPS + Smart Search + Fake Location (Pake PP Lokal)
+
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import config from '../../config.js';
-import sharp from 'sharp'; 
+import sharp from 'sharp'; // 🔥 Cukup pake Sharp aja, buang Axios
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,9 +13,13 @@ const PROJECT_ROOT = path.resolve(__dirname, '../..');
 
 const BOT_NAME = config.botName || 'FarrMdV3';
 const HEADER_JID = '13135550002@s.whatsapp.net'; // Meta AI JID
-const LOCAL_THUMB = path.join(PROJECT_ROOT, 'thumb', 'thumb.jpg'); //posisi thumnnail, harus sama
 
-//smart search
+// 🔥 PATH LOKAL (Sesuaiin sama posisi folder lu)
+const LOCAL_THUMB = path.join(PROJECT_ROOT, 'thumb', 'thumb.jpg');
+
+// ============================================================
+// 🔥 FUNGSI PENCARIAN PINTAR
+// ============================================================
 async function findFileSmart(dir, fileName) {
     try {
         const files = await fs.readdir(dir, { withFileTypes: true });
@@ -35,8 +40,12 @@ async function findFileSmart(dir, fileName) {
     return null;
 }
 
+// ============================================================
+// 🔥 HELPER: FAKE LOCATION QUOTE + THUMBNAIL
+// ============================================================
 async function fakeLocationQuote(name, address) {
     try {
+        // 🔥 FIX SINTAKS: Pake fs.readFile langsung, tanpa Buffer.from berlebih
         const imgBuf = await fs.readFile(LOCAL_THUMB);
 
         const thumb = await sharp(imgBuf)
@@ -106,7 +115,8 @@ export default {
         let fullPath = '';
 
         await react('⏳');
-        
+
+        // Pencarian
         if (userPath.includes('/') || userPath.includes('\\')) {
             const checkPath = path.resolve(userPath.startsWith('/') ? userPath : path.join(PROJECT_ROOT, userPath));
             try {

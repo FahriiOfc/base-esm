@@ -1,13 +1,14 @@
 // command/vps/edit.js
-// ✏️ Edit file (Reply text ATAU Reply file dokumen) + Smart Path Search
 
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { downloadMediaMessage } from '@whiskeysockets/baileys'; 
+import { downloadMediaMessage } from '@whiskeysockets/baileys';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.resolve(__dirname, '../..');
+
 async function findFileSmart(dir, fileName) {
     const files = await fs.readdir(dir, { withFileTypes: true });
     for (const file of files) {
@@ -16,7 +17,7 @@ async function findFileSmart(dir, fileName) {
             if (['node_modules', '.git', 'auth', 'temp', 'sessions'].includes(file.name)) continue;
             
             const found = await findFileSmart(fullPath, fileName);
-            if (found) return found; 
+            if (found) return found;
         } else if (file.name === fileName) {
             return fullPath;
         }
@@ -28,7 +29,7 @@ export default {
     name: 'edit',
     aliases: ['ed'],
     category: 'vps',
-    description: '✏️ Edit file (Reply text/file) + Smart Search',
+    description: '✏️ Edit file (Reply text/file) + Smart Search + Auto Reload',
     ownerOnly: true,
 
     async execute(ctx) {
@@ -86,8 +87,27 @@ export default {
         try {
             await fs.writeFile(fullPath, newSource, 'utf8');
             const relativePath = path.relative(PROJECT_ROOT, fullPath);
+            
+            let reloadStatus = '';
+
+            if (fullPath.startsWith(path.join(PROJECT_ROOT, 'plugins'))) {
+                try {
+                    const loader = global.commandLoader;
+                    if (loader) {
+                        const reloadResult = await loader.reloadCommand(fullPath);
+                        reloadStatus = `\n🔄 *Hot Reload:* Berhasil dimuat ulang (${reloadResult.name || 'OK'})`;
+                    } else {
+                        reloadStatus = `\n⚠️ *Hot Reload:* Gagal (global.commandLoader tidak ditemukan)`;
+                    }
+                } catch (reloadError) {
+                    reloadStatus = `\n⚠️ *Hot Reload Gagal:* ${reloadError.message}\n_(Coba ketik .reload manual)_`;
+                }
+            } else {
+                reloadStatus = `\nℹ️ *Hot Reload:* Diabaikan (bukan file plugin)`;
+            }
+
             await react('✅');
-            return `✅ *File berhasil diedit!*\n\n📁 Path: \`${relativePath}\`\n📝 Ukuran Baru: ${Buffer.byteLength(newSource)} bytes`;
+            return `✅ *File berhasil diedit!*\n\n📁 Path: \`${relativePath}\`\n📝 Ukuran Baru: ${Buffer.byteLength(newSource)} bytes${reloadStatus}`;
 
         } catch (error) {
             await react('❌');
