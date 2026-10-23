@@ -1,7 +1,5 @@
 // plugins/owner/run.js
-// 🚀 Run — Execute payload dari file .js
-// Support: format CRM Creator (=> ...), script biasa, export default
-// Support: reply document (.crm) dan AIRich conversation (.cat2)
+// Menjalanka suatu payload code js, misalnya hasil crm atau eval
 
 import vm from 'vm';
 import crypto from 'crypto';
@@ -19,10 +17,6 @@ export default {
 
         await react('⏳');
 
-        // ============================================================
-        // CEK SUMBER — document (.crm) atau conversation (.cat2)
-        // ============================================================
-
         const hasDocument = !!quoted?.message?.documentMessage;
         const hasConversation = !!quoted?.message?.conversation;
 
@@ -33,11 +27,7 @@ export default {
 
         try {
             let code = '';
-
-            // ============================================================
-            // SUMBER 1: DOCUMENT (.crm)
-            // ============================================================
-
+//doc crm
             if (hasDocument) {
                 const { downloadMediaMessage } = await import('@whiskeysockets/baileys');
 
@@ -55,17 +45,10 @@ export default {
 
                 code = buffer.toString('utf8').trim();
                 console.log('[RUN] Source: document');
-
-            // ============================================================
-            // SUMBER 2: CONVERSATION (.cat2 AIRich fallback)
-            // ============================================================
-
+//code dr airich
             } else if (hasConversation) {
                 const conv = quoted.message.conversation;
-
-                // Buang baris pertama (header `# 📄 ...`), sisanya = code
                 code = conv.replace(/^#[^\n]*\n/, '').trim();
-
                 console.log('[RUN] Source: conversation');
             }
 
@@ -76,20 +59,8 @@ export default {
 
             console.log('[RUN] Length:', code.length);
             console.log('[RUN] Preview:', code.slice(0, 120).replace(/\n/g, ' '));
-
-            // ============================================================
-            // STRIP HEADER COMMENT
-            // ============================================================
-
             code = code.replace(/^\/\*[\s\S]*?\*\/\s*/m, '').trim();
-
-            // ============================================================
-            // DETEKSI FORMAT
-            // ============================================================
-
             let format = 'unknown';
-
-            // Format CRM Creator: `=> conn.relayMessage(...)` atau `> conn.relayMessage(...)`
             if (code.startsWith('=>')) {
                 code = code.slice(2).trim();
                 format = 'crm-arrow';
@@ -108,11 +79,6 @@ export default {
             }
 
             console.log('[RUN] Format:', format);
-
-            // ============================================================
-            // KONTEKS
-            // ============================================================
-
             const m = {
                 chat: chat,
                 sender: sender,
@@ -152,8 +118,7 @@ export default {
                 RegExp: RegExp,
                 Error: Error
             };
-
-            // Tambah baileys exports
+            // baileys exports
             try {
                 const baileys = await import('@whiskeysockets/baileys');
                 context.generateWAMessageFromContent = baileys.generateWAMessageFromContent;
@@ -164,19 +129,9 @@ export default {
             } catch (e) {
                 console.log('[RUN] Cannot import baileys:', e.message);
             }
-
-            // ============================================================
-            // BUNGKUS ASYNC IIFE
-            // ============================================================
-
             const wrappedCode = `(async function farrRun() {
 ${code}
 })()`;
-
-            // ============================================================
-            // EXECUTE VIA VM
-            // ============================================================
-
             const script = new vm.Script(wrappedCode, {
                 filename: `farr_run_${Date.now()}.js`
             });
