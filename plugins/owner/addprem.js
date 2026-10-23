@@ -10,15 +10,9 @@ export default {
 
     async execute(ctx) {
         const { args, quoted, react, reply, sender, mentionedJid } = ctx;
-
-        // ============================================================
-        // AMBIL TARGET (PRIORITAS: args → mention → reply)
-        // ============================================================
-
         let target = '';
         let duration = 0;
 
-        // 1️⃣ Cek dari args (nomor manual + durasi)
         if (args && args.length >= 2) {
             const firstArg = args[0];
             if (!firstArg.startsWith('@')) {
@@ -26,14 +20,11 @@ export default {
                 duration = parseInt(args[1]);
             }
         }
-
-        // 2️⃣ Cek dari mention (@tag)
         if (!target && mentionedJid && mentionedJid.length > 0) {
             const jid = mentionedJid[0];
             const number = jid.split('@')[0].replace(/\D/g, '');
             if (number && number.length >= 6) {
                 target = number;
-                // Cari durasi dari args
                 for (const arg of (args || [])) {
                     const num = parseInt(arg);
                     if (!isNaN(num) && num > 0) {
@@ -44,7 +35,6 @@ export default {
             }
         }
 
-        // 3️⃣ Cek dari reply
         if (!target && quoted?.sender) {
             const number = quoted.sender.split('@')[0].replace(/\D/g, '');
             if (number && number.length >= 6) {
@@ -54,8 +44,6 @@ export default {
                 }
             }
         }
-
-        // 4️⃣ Fallback: coba dari args
         if (!target && args && args.length >= 1) {
             const possibleNumber = args[0].replace(/\D/g, '');
             if (possibleNumber && possibleNumber.length >= 6) {
@@ -65,8 +53,6 @@ export default {
                 }
             }
         }
-
-        // 5️⃣ Cari durasi jika belum ditemukan
         if (target && !duration) {
             for (const arg of (args || [])) {
                 const num = parseInt(arg);
@@ -76,10 +62,6 @@ export default {
                 }
             }
         }
-
-        // ============================================================
-        // VALIDASI
-        // ============================================================
 
         if (!target || target.length < 6) {
             await react('❌');
@@ -108,12 +90,7 @@ export default {
             return msg;
         }
 
-        // ============================================================
-        // EKSEKUSI
-        // ============================================================
-
         await react('⏳');
-
         const result = premium.addPremium(target, duration, sender);
 
         if (!result.success) {
