@@ -7,12 +7,7 @@ import path from 'path';
 
 const PROJECT_ROOT = process.cwd();
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
-const CHUNK_LIMIT = 3500;          // batas aman sebelum jadi document
-
-// ============================================================
-// HELPER: EXT & MIME
-// ============================================================
-
+const CHUNK_LIMIT = 6000;          // batas aman sebelum jadi document
 const TEXT_EXTS = new Set([
     '.js', '.mjs', '.cjs', '.ts', '.jsx', '.tsx',
     '.json', '.txt', '.md', '.markdown', '.log',
@@ -46,10 +41,6 @@ function looksBinary(buffer) {
     return nonText / sample.length > 0.3;
 }
 
-// ============================================================
-// HELPER: SAFE PATH
-// ============================================================
-
 function resolveSafePath(input) {
     const raw = String(input || '').trim();
     if (!raw) throw new Error('Path kosong');
@@ -70,16 +61,11 @@ function resolveSafePath(input) {
     return normalizedAbs;
 }
 
-// ============================================================
-// HELPER: BACA REPLY
-// ============================================================
-
 async function readFromQuoted(quoted) {
     if (!quoted?.message) return null;
 
     const msg = quoted.message;
 
-    // Document (file)
     if (msg.documentMessage) {
         const doc = msg.documentMessage;
         const fileName = doc.fileName || 'document';
@@ -93,7 +79,6 @@ async function readFromQuoted(quoted) {
             if (buffer.length > MAX_SIZE) throw new Error(`File > ${MAX_SIZE / 1024 / 1024} MB, dilewati`);
         }
 
-        // Kalau binary & bukan text file → skip
         if (looksBinary(buffer) && !isTextFile(fileName)) {
             throw new Error('File binary tidak didukung');
         }
@@ -105,7 +90,6 @@ async function readFromQuoted(quoted) {
         };
     }
 
-    // Text / caption
     let text = null;
     if (typeof msg.conversation === 'string') text = msg.conversation;
     else if (msg.extendedTextMessage?.text) text = msg.extendedTextMessage.text;
@@ -123,10 +107,6 @@ async function readFromQuoted(quoted) {
 
     return null;
 }
-
-// ============================================================
-// HELPER: BACA LOCAL FILE / FOLDER
-// ============================================================
 
 function readLocalTarget(absPath, displayName) {
     const stat = fs.statSync(absPath);
@@ -165,20 +145,12 @@ function readLocalTarget(absPath, displayName) {
     };
 }
 
-// ============================================================
-// HELPER: FORMAT FOLDER LIST
-// ============================================================
-
 function formatFolderList(result) {
     if (!result.entries.length) return `📂 *${result.path}*\n\n_(kosong)_`;
 
     const lines = result.entries.map(e => e.isDir ? `📁 ${e.name}/` : `📄 ${e.name}`);
     return `📂 *${result.path}*\n\n${lines.join('\n')}\n\n_${result.entries.length} item_`;
 }
-
-// ============================================================
-// COMMAND
-// ============================================================
 
 export default {
     name: 'cat',
@@ -197,7 +169,6 @@ export default {
         let target = null;
 
         try {
-            // Prioritas 1: argumen path lokal
             if (argText) {
                 const absPath = resolveSafePath(argText);
                 if (!fs.existsSync(absPath)) {
@@ -212,7 +183,6 @@ export default {
                 }
                 target = result;
             } else {
-                // Prioritas 2: reply document/text
                 if (!quoted) {
                     await react('❌');
                     return (
@@ -232,7 +202,6 @@ export default {
                 }
             }
 
-            // Kirim hasil
             const content = target.content;
 
             if (content.length <= CHUNK_LIMIT) {
@@ -240,7 +209,6 @@ export default {
                 return content;
             }
 
-            // Kepanjangan → kirim sebagai document
             await sock.sendMessage(chat, {
                 document: Buffer.from(content, 'utf-8'),
                 fileName: target.fileName.replace(/\.[^.]+$/, '') + '.txt',
