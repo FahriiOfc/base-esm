@@ -161,10 +161,10 @@ export default {
                                             id: ".menu" 
                                         },
                                         { 
-                                            header: "⚡", 
-                                            title: "Ping", 
-                                            description: "Cek kecepatan latensi bot", 
-                                            id: ".ping" 
+                                            header: "🏷️", 
+                                            title: "Script", 
+                                            description: "Script Bot yang digunakan", 
+                                            id: ".sc" 
                                         },
                                         { 
                                             header: "👑", 
