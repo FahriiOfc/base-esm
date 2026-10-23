@@ -2,10 +2,17 @@
 
 import sharp from 'sharp';
 import axios from 'axios';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import config from '../../config.js';
+import settings from '../../lib/settings.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const BOT_NAME = config.botName || 'FarrMdV2';
-const HEADER_IMG = 'https://raw.githubusercontent.com/FahriiOfc/thumb/main/gambar.jpg'; //ubah header, kalo mau lokal, cari tau sendiri
+const HEADER_IMG = 'https://raw.githubusercontent.com/FahriiOfc/thumb/main/gambar.jpg';
 
 function getPrefixStatus() {
     try {
@@ -22,7 +29,14 @@ function getPrefixStatus() {
 }
 
 function getGreeting() {
-    const hour = new Date().getHours();
+    const hourStr = new Intl.DateTimeFormat('id-ID', {
+        timeZone: 'Asia/Jakarta', 
+        hour: 'numeric', 
+        hour12: false 
+    }).format(new Date());
+    
+    const hour = parseInt(hourStr, 10);
+
     if (hour >= 4 && hour < 11) return 'Selamat pagi';
     if (hour >= 11 && hour < 15) return 'Selamat siang';
     if (hour >= 15 && hour < 18) return 'Selamat sore';
@@ -38,7 +52,7 @@ export default {
     async execute(ctx) {
         const { sock, chat, sender, react } = ctx;
         await react('⏳');
-        
+
         let thumbBase64 = null;
         try {
             const buf = Buffer.from((await axios.get(HEADER_IMG, { responseType: 'arraybuffer' })).data);
@@ -53,16 +67,26 @@ export default {
         const m = Math.floor((runtime % 3600) / 60);
         const s = Math.floor(runtime % 60);
         const runtimeStr = `${h > 0 ? h + 'h ' : ''}${m > 0 ? m + 'm ' : ''}${s}s`;
+        
         const dateStr = new Intl.DateTimeFormat('id-ID', {
-            timeZone: 'Asia/Jakarta', weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
+            timeZone: 'Asia/Jakarta', 
+            weekday: 'long', 
+            day: '2-digit', 
+            month: 'long', 
+            year: 'numeric'
         }).format(new Date());
         
         const timeStr = new Intl.DateTimeFormat('id-ID', {
-            timeZone: 'Asia/Jakarta', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-        }).format(new Date());
-        
+            timeZone: 'Asia/Jakarta', 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit', 
+            hour12: false
+        }).format(new Date()).replace(/\./g, ':'); // Kadang ID locale pake titik (17.30), kita ganti jadi titik dua (:)
+
         const botMode = settings.getValue('mode') === 'self' ? 'Self Mode' : 'Public Mode';
-        
+        const prefixStatus = getPrefixStatus();
+        const greeting = getGreeting();
         const msgContent = {
             buttonsMessage: {
                 locationMessage: {
@@ -72,9 +96,9 @@ export default {
                     address: `Runtime: ${runtimeStr}`,
                     ...(thumbBase64 && { jpegThumbnail: thumbBase64 })
                 },
-                    contentText: 
+                contentText: 
                     `乂 *BOT INFORMATION*\n\n` +
-                    `Halo @${sender.split('@')[0]}, ${getGreeting()}! 👋\n\n` +
+                    `Halo @${sender.split('@')[0]}, ${greeting}! 👋\n\n` + // 🔥 GREETING DISINI
                     `╭─ \`INFORMASI\` 𝜗ৎ\n` +
                     `┆ ᵎᵎ Owner : *${config.ownerName || 'Owner'}*\n` +
                     `┆ ᵎᵎ Prefix : *${prefixStatus}*\n` +
@@ -96,8 +120,11 @@ export default {
                     `┆ ᵎᵎ .backup\n` +
                     `┆ ᵎᵎ .cat\n` +
                     `┆ ᵎᵎ .cat2\n` +
+                    `┆ ᵎᵎ .debug\n` +
+                    `┆ ᵎᵎ .dm\n` +
                     `┆ ᵎᵎ .edit\n` +
                     `┆ ᵎᵎ .eval\n` +
+                    `┆ ᵎᵎ .fm\n` +
                     `┆ ᵎᵎ .get\n` +
                     `┆ ᵎᵎ .public\n` +
                     `┆ ᵎᵎ .reload\n` +
@@ -125,9 +152,24 @@ export default {
                                     title: "Main Menu",
                                     highlight_label: BOT_NAME,
                                     rows: [
-                                        { header: "", title: "Menu Utama", id: ".menu", highlight_label: "Semua Fitur" },
-                                        { header: "", title: "Ping", id: ".ping", highlight_label: "Cek Bot" },
-                                        { header: "", title: "Owner", id: ".owner", highlight_label: "Kontak" }
+                                        { 
+                                            header: "🏠", 
+                                            title: "Menu Utama", 
+                                            description: "Kembali ke menu utama bot", 
+                                            id: ".menu" 
+                                        },
+                                        { 
+                                            header: "⚡", 
+                                            title: "Ping", 
+                                            description: "Cek kecepatan latensi bot", 
+                                            id: ".ping" 
+                                        },
+                                        { 
+                                            header: "👑", 
+                                            title: "Owner", 
+                                            description: "Hubungi kontak pemilik bot", 
+                                            id: ".owner" 
+                                        }
                                     ]
                                 }]
                             })
