@@ -11,17 +11,12 @@ const PROJECT_ROOT = path.resolve(__dirname, '../..');
 
 console.log(`[RELOAD] 📁 Project Root: ${PROJECT_ROOT}`);
 
-// ============================================================
-// RELOAD CONFIG
-// ============================================================
-
 async function reloadConfig() {
     try {
         const configPath = path.join(PROJECT_ROOT, 'config.js');
         const configUrl = new URL(`file://${configPath}?t=${Date.now()}`);
         const newConfig = await import(configUrl);
         
-        // Timpa config global (opsional, tergantung seberapa sering Anda akses global.config)
         global.config = newConfig.default;
         
         console.log('[RELOAD] ✅ Config reloaded');
@@ -31,10 +26,6 @@ async function reloadConfig() {
         return false;
     }
 }
-
-// ============================================================
-// RELOAD COMMANDS
-// ============================================================
 
 async function reloadCommands(commandLoader) {
     try {
@@ -48,12 +39,7 @@ async function reloadCommands(commandLoader) {
     }
 }
 
-// ============================================================
-// RELOAD LIB
-// ============================================================
-
 async function reloadLibFiles() {
-    // Hanya file lib/ yang benar-benar ada di project
     const libFiles = [
         'commandLoader.js',
         'commandManager.js',
@@ -86,10 +72,6 @@ async function reloadLibFiles() {
     return successCount === libFiles.length;
 }
 
-// ============================================================
-// RELOAD FILE SPESIFIK
-// ============================================================
-
 async function reloadSpecificFile(filePath) {
     try {
         const fullPath = path.resolve(PROJECT_ROOT, filePath);
@@ -108,10 +90,6 @@ async function reloadSpecificFile(filePath) {
     }
 }
 
-// ============================================================
-// COMMAND
-// ============================================================
-
 export default {
     name: 'reload',
     aliases: ['rl', 'refresh'],
@@ -129,10 +107,6 @@ export default {
             await react('❌');
             return '❌ Command loader tidak ditemukan!';
         }
-
-        // ============================================================
-        // PARSE ARGUMEN
-        // ============================================================
 
         let reloadConfigs = true;
         let reloadCmds = true;
@@ -156,19 +130,12 @@ export default {
                     reloadFileTarget = arg;
                 }
             }
-
-            // Jika user cuma ketik .reload tanpa argumen valid, load semua
             if (!reloadConfigs && !reloadCmds && !reloadLib && !reloadFileTarget) {
                 reloadConfigs = true;
                 reloadCmds = true;
                 reloadLib = true;
             }
         }
-
-        // ============================================================
-        // EKSEKUSI RELOAD
-        // ============================================================
-
         const results = {
             config: false,
             commands: false,
@@ -180,10 +147,6 @@ export default {
         if (reloadCmds) results.commands = await reloadCommands(commandLoader);
         if (reloadLib) results.lib = await reloadLibFiles();
         if (reloadFileTarget) results.file = await reloadSpecificFile(reloadFileTarget);
-
-        // ============================================================
-        // BUILD RESPONSE
-        // ============================================================
 
         let response = `🔄 *Reload Complete*\n`;
         response += `📁 ${PROJECT_ROOT}\n\n`;
