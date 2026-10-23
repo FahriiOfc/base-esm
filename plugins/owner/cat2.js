@@ -7,11 +7,6 @@ import path from 'path';
 
 const PROJECT_ROOT = process.cwd();
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
-
-// ============================================================
-// HELPER: EXT & LANGUAGE MAPPING
-// ============================================================
-
 const LANG_MAP = {
     '.js': 'javascript', '.mjs': 'javascript', '.cjs': 'javascript',
     '.jsx': 'javascript', '.ts': 'typescript', '.tsx': 'typescript',
@@ -75,10 +70,6 @@ function formatBytes(bytes) {
     return `${v.toFixed(2)} ${units[i]}`;
 }
 
-// ============================================================
-// HELPER: SAFE PATH
-// ============================================================
-
 function resolveSafePath(input) {
     const raw = String(input || '').trim();
     if (!raw) throw new Error('Path kosong');
@@ -94,10 +85,6 @@ function resolveSafePath(input) {
     }
     return normalizedAbs;
 }
-
-// ============================================================
-// HELPER: BACA REPLY
-// ============================================================
 
 async function readFromQuoted(quoted) {
     if (!quoted?.message) return null;
@@ -136,10 +123,6 @@ async function readFromQuoted(quoted) {
     return null;
 }
 
-// ============================================================
-// HELPER: BACA LOCAL
-// ============================================================
-
 function readLocalTarget(absPath, displayName) {
     const stat = fs.statSync(absPath);
 
@@ -163,10 +146,6 @@ function readLocalTarget(absPath, displayName) {
     return { isDirectory: false, fileName, buffer, content: buffer.toString('utf-8') };
 }
 
-// ============================================================
-// HELPER: FOLDER LIST (AIRich)
-// ============================================================
-
 async function sendFolderList(sock, chat, message, result) {
     const { AIRich } = await import('../../lib/MessageBuilder.js');
 
@@ -182,10 +161,6 @@ async function sendFolderList(sock, chat, message, result) {
         .send(chat, { quoted: message, includesSubmessages: false });
 }
 
-// ============================================================
-// HELPER: KIRIM AIRICH CODE
-// ============================================================
-
 async function sendAIRichCode(sock, chat, message, target) {
     const { AIRich } = await import('../../lib/MessageBuilder.js');
 
@@ -196,8 +171,6 @@ async function sendAIRichCode(sock, chat, message, target) {
     const sizeHuman = formatBytes(target.buffer?.length || Buffer.byteLength(content, 'utf-8'));
     const lines = content.split('\n').length;
     const chars = content.length;
-
-    // Title = nama file uppercase (tanpa ext, kayak NNN: REACTIONMESSAGE.JSON)
     const title = fileName.toUpperCase();
 
     await new AIRich(sock)
@@ -211,10 +184,6 @@ async function sendAIRichCode(sock, chat, message, target) {
         .addCode(language, content)
         .send(chat, { quoted: message, includesSubmessages: false });
 }
-
-// ============================================================
-// COMMAND
-// ============================================================
 
 export default {
     name: 'cat2',
