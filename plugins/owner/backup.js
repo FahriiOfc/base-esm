@@ -1,12 +1,11 @@
 // plugins/owner/backup.js
-//backup file
-
+// kirim file backup
 import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { fileURLToPath } from 'url';
-import sharp from 'sharp'; 
+import sharp from 'sharp';
 import config from '../../config.js';
 
 const execAsync = promisify(exec);
@@ -17,7 +16,7 @@ const BOT_NAME = config.botName || 'FarrMdV2';
 const WA_JID = '0@s.whatsapp.net';
 const LOCAL_THUMB = path.join(PROJECT_ROOT, 'thumb', 'thumb.jpg');
 const EXCLUDE_DIRS = ['node_modules', 'auth', 'temp', 'backup', '.git', 'data']; //kecuali folder
-const EXCLUDE_FILES = ['package-lock.json', '.env']; //kecuali file 
+const EXCLUDE_FILES = ['package-lock.json', '.env']; //kecuali file
 
 function formatFileSize(bytes) {
     if (!bytes || bytes === 0) return '0 B';
@@ -61,7 +60,7 @@ function buildExcludeArgs() {
     for (const file of EXCLUDE_FILES) args += ` -x "${file}"`;
     return args;
 }
-//buat fakelocation
+//fakequoted
 async function fakeLocationQuote() {
     try {
         const imgBuf = await fs.promises.readFile(LOCAL_THUMB);
@@ -113,31 +112,32 @@ export default {
     name: 'backup',
     aliases: ['zip', 'backups'],
     category: 'vps',
-    description: ' Backup project ke ZIP (kirim ke owner)',
+    description: '💾 Backup project ke ZIP (kirim ke owner)',
     ownerOnly: true,
 
     async execute(ctx) {
         const { sock, chat, sender, react, reply, message } = ctx;
         const startTime = Date.now();
-        await react('');
+        await react('⏳');
 
         const ownerJid = sender;  // Owner = pengirim perintah
         const fakeQuote = await fakeLocationQuote();
-        const stats = getFolderStats(PROJECT_ROOT); //progress
+        const stats = getFolderStats(PROJECT_ROOT);
         const sizeFormatted = formatFileSize(stats.size);
 
         await sock.sendMessage(chat, {
             text:
-                ` *BACKUP SCRIPT*\n\n` +
-                ` ${stats.folders} folder\n` +
-                ` ${stats.files} file\n` +
-                ` ${sizeFormatted}\n\n` +
-                ` Membuat ZIP...`
+                `📦 *BACKUP SCRIPT*\n\n` +
+                `📁 ${stats.folders} folder\n` +
+                `📄 ${stats.files} file\n` +
+                `📦 ${sizeFormatted}\n\n` +
+                `⏳ Membuat ZIP...`
         }, {
             quoted: fakeQuote
         });
 
         console.log(`[BACKUP] Stats: ${stats.folders} folders, ${stats.files} files, ${sizeFormatted}`);
+        
         const zipName = `backup-${BOT_NAME}-${Date.now()}.zip`;
         const zipPath = path.join(PROJECT_ROOT, zipName);
         const excludeArgs = buildExcludeArgs();
@@ -170,22 +170,23 @@ export default {
                 fileName: zipName,
                 mimetype: 'application/zip',
                 caption:
-                    ` *Backup Berhasil!*\n\n` +
-                    ` Dikirim ke: Owner (pribadi)\n` +
-                    ` Ukuran: ${zipSize}\n` +
-                    ` Waktu: ${elapsed}\n\n` +
-                    ` ${BOT_NAME}`
+                    `✅ *Backup Berhasil!*\n\n` +
+                    `📤 Dikirim ke: Owner (pribadi)\n` +
+                    `📊 Ukuran: ${zipSize}\n` +
+                    `⏱ Waktu: ${elapsed}\n\n` +
+                    `🛡 ${BOT_NAME}`
             }, {
                 quoted: fakeQuote
             });
+            
             await sock.sendMessage(chat, {
                 text:
-                    ` *Backup Berhasil!*\n\n` +
-                    ` File ZIP dikirim ke Owner\n` +
-                    ` Ukuran: ${zipSize}\n` +
-                    ` Waktu: ${elapsed}\n\n` +
-                    ` @${sender.split('@')[0]}\n` +
-                    ` ${BOT_NAME}`,
+                    `✅ *Backup Berhasil!*\n\n` +
+                    `📤 File ZIP dikirim ke Owner\n` +
+                    `📊 Ukuran: ${zipSize}\n` +
+                    `⏱ Waktu: ${elapsed}\n\n` +
+                    `👤 @${sender.split('@')[0]}\n` +
+                    `🛡 ${BOT_NAME}`,
                 contextInfo: {
                     mentionedJid: [sender]
                 }
@@ -193,13 +194,13 @@ export default {
                 quoted: fakeQuote
             });
             try { fs.unlinkSync(zipPath); } catch (e) {}
-            await react('');
+            await react('✅');
 
         } catch (error) {
             console.error('[BACKUP] Error:', error.message);
             try { if (fs.existsSync(zipPath)) fs.unlinkSync(zipPath); } catch (e) {}
-            await react('');
-            await reply(` Gagal backup: ${error.message}`);
+            await react('❌');
+            await reply(`❌ Gagal backup: ${error.message}`);
         }
     }
 };
