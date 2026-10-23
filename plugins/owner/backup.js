@@ -1,32 +1,23 @@
-// plugins/vps/backup.js
-// 💾 Backup - Kirim file ke owner (fake location + thumbnail GitHub)
+// plugins/owner/backup.js
+//backup file
 
 import fs from 'fs';
 import path from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { fileURLToPath } from 'url';
+import sharp from 'sharp'; 
 import config from '../../config.js';
 
 const execAsync = promisify(exec);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.resolve(__dirname, '../..');
-
-// ============================================================
-// KONFIGURASI
-// ============================================================
-
 const BOT_NAME = config.botName || 'FarrMdV2';
 const WA_JID = '0@s.whatsapp.net';
-const THUMB_URL = 'https://raw.githubusercontent.com/FahriiOfc/thumb/main/gambar.jpg';
-
-const EXCLUDE_DIRS = ['node_modules', 'auth', 'temp', 'backup', '.git', 'data'];
-const EXCLUDE_FILES = ['package-lock.json', '.env'];
-
-// ============================================================
-// HELPERS
-// ============================================================
+const LOCAL_THUMB = path.join(PROJECT_ROOT, 'thumb', 'thumb.jpg');
+const EXCLUDE_DIRS = ['node_modules', 'auth', 'temp', 'backup', '.git', 'data']; //kecuali folder
+const EXCLUDE_FILES = ['package-lock.json', '.env']; //kecuali file 
 
 function formatFileSize(bytes) {
     if (!bytes || bytes === 0) return '0 B';
@@ -70,19 +61,10 @@ function buildExcludeArgs() {
     for (const file of EXCLUDE_FILES) args += ` -x "${file}"`;
     return args;
 }
-
-// ============================================================
-// FAKE LOCATION QUOTE + THUMBNAIL GITHUB
-// ============================================================
-
+//buat fakelocation
 async function fakeLocationQuote() {
     try {
-        const axios = (await import('axios')).default;
-        const sharp = (await import('sharp')).default;
-
-        const imgBuf = Buffer.from(
-            (await axios.get(THUMB_URL, { responseType: 'arraybuffer' })).data
-        );
+        const imgBuf = await fs.promises.readFile(LOCAL_THUMB);
 
         const thumb = await sharp(imgBuf)
             .resize(200, 200, { fit: 'cover' })
@@ -109,7 +91,6 @@ async function fakeLocationQuote() {
         };
     } catch (e) {
         console.error('[BACKUP] Thumb error:', e.message);
-        // Fallback tanpa thumbnail
         return {
             key: {
                 participant: WA_JID,
@@ -128,49 +109,35 @@ async function fakeLocationQuote() {
     }
 }
 
-// ============================================================
-// COMMAND
-// ============================================================
-
 export default {
     name: 'backup',
     aliases: ['zip', 'backups'],
     category: 'vps',
-    description: '💾 Backup project ke ZIP (kirim ke owner)',
+    description: ' Backup project ke ZIP (kirim ke owner)',
     ownerOnly: true,
 
     async execute(ctx) {
         const { sock, chat, sender, react, reply, message } = ctx;
         const startTime = Date.now();
-        await react('⏳');
+        await react('');
 
         const ownerJid = sender;  // Owner = pengirim perintah
         const fakeQuote = await fakeLocationQuote();
-
-        // ============================================================
-        // BUBBLE 1: PROGRESS
-        // ============================================================
-
-        const stats = getFolderStats(PROJECT_ROOT);
+        const stats = getFolderStats(PROJECT_ROOT); //progress
         const sizeFormatted = formatFileSize(stats.size);
 
         await sock.sendMessage(chat, {
             text:
-                `📦 *BACKUP SCRIPT*\n\n` +
-                `📁 ${stats.folders} folder\n` +
-                `📄 ${stats.files} file\n` +
-                `📦 ${sizeFormatted}\n\n` +
-                `⏳ Membuat ZIP...`
+                ` *BACKUP SCRIPT*\n\n` +
+                ` ${stats.folders} folder\n` +
+                ` ${stats.files} file\n` +
+                ` ${sizeFormatted}\n\n` +
+                ` Membuat ZIP...`
         }, {
             quoted: fakeQuote
         });
 
         console.log(`[BACKUP] Stats: ${stats.folders} folders, ${stats.files} files, ${sizeFormatted}`);
-
-        // ============================================================
-        // BUAT ZIP
-        // ============================================================
-
         const zipName = `backup-${BOT_NAME}-${Date.now()}.zip`;
         const zipPath = path.join(PROJECT_ROOT, zipName);
         const excludeArgs = buildExcludeArgs();
@@ -196,11 +163,6 @@ export default {
             const elapsed = formatTime(Date.now() - startTime);
 
             console.log(`[BACKUP] ZIP: ${zipSize} (${elapsed})`);
-
-            // ============================================================
-            // BUBBLE 2: KIRIM FILE KE OWNER (PRIBADI)
-            // ============================================================
-
             const zipBuffer = fs.readFileSync(zipPath);
 
             await sock.sendMessage(ownerJid, {
@@ -208,43 +170,36 @@ export default {
                 fileName: zipName,
                 mimetype: 'application/zip',
                 caption:
-                    `✅ *Backup Berhasil!*\n\n` +
-                    `📤 Dikirim ke: Owner (pribadi)\n` +
-                    `📊 Ukuran: ${zipSize}\n` +
-                    `⏱ Waktu: ${elapsed}\n\n` +
-                    `🛡 ${BOT_NAME}`
+                    ` *Backup Berhasil!*\n\n` +
+                    ` Dikirim ke: Owner (pribadi)\n` +
+                    ` Ukuran: ${zipSize}\n` +
+                    ` Waktu: ${elapsed}\n\n` +
+                    ` ${BOT_NAME}`
             }, {
                 quoted: fakeQuote
             });
-
-            // ============================================================
-            // BUBBLE 3: KONFIRMASI DI CHAT
-            // ============================================================
-
             await sock.sendMessage(chat, {
                 text:
-                    `✅ *Backup Berhasil!*\n\n` +
-                    `📤 File ZIP dikirim ke Owner\n` +
-                    `📊 Ukuran: ${zipSize}\n` +
-                    `⏱ Waktu: ${elapsed}\n\n` +
-                    `👤 @${sender.split('@')[0]}\n` +
-                    `🛡 ${BOT_NAME}`,
+                    ` *Backup Berhasil!*\n\n` +
+                    ` File ZIP dikirim ke Owner\n` +
+                    ` Ukuran: ${zipSize}\n` +
+                    ` Waktu: ${elapsed}\n\n` +
+                    ` @${sender.split('@')[0]}\n` +
+                    ` ${BOT_NAME}`,
                 contextInfo: {
                     mentionedJid: [sender]
                 }
             }, {
                 quoted: fakeQuote
             });
-
-            // Cleanup
             try { fs.unlinkSync(zipPath); } catch (e) {}
-            await react('✅');
+            await react('');
 
         } catch (error) {
             console.error('[BACKUP] Error:', error.message);
             try { if (fs.existsSync(zipPath)) fs.unlinkSync(zipPath); } catch (e) {}
-            await react('❌');
-            await reply(`❌ Gagal backup: ${error.message}`);
+            await react('');
+            await reply(` Gagal backup: ${error.message}`);
         }
     }
 };
